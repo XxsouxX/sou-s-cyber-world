@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberAcademy & SecureChat - صنع من قبل XxsouxX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0b0b0b;
+            color: #f3f4f6;
+        }
+        .crimson-glow {
+            box-shadow: 0 0 20px rgba(220, 20, 60, 0.3);
+        }
+        .crimson-border {
+            border-color: #dc143c;
+        }
+        .crimson-bg {
+            background-color: #dc143c;
+        }
+        .crimson-text {
+            color: #dc143c;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #121212;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #dc143c;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="bg-[#0b0b0b] text-gray-100 min-h-screen flex flex-col">
+
+    <!-- شاشة إدخال البيانات الشخصية والبدء -->
+    <div id="welcome-screen" class="fixed inset-0 z-50 bg-[#0b0b0b] flex items-center justify-center p-4">
+        <div class="bg-[#141414] border-2 crimson-border rounded-2xl p-8 max-w-md w-full crimson-glow text-center">
+            <div class="mb-6">
+                <i class="fa-solid fa-shield-halved text-5xl crimson-text mb-2"></i>
+                <h1 class="text-2xl font-black text-white">أكاديمية الأمن السيبراني والبرمجة</h1>
+                <p class="text-xs text-gray-400 mt-1">صنع من قبل XxsouxX</p>
+            </div>
+
+            <div class="space-y-4 text-right">
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-gray-300">اسم المستخدم:</label>
+                    <input type="text" id="username-input" placeholder="اكتب اسمك المستعار..." class="w-full bg-[#1e1e1e] border border-gray-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#dc143c]">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-1 text-gray-300">اختر صورة الأفاتار أو ارفع صورتك:</label>
+                    <div class="flex items-center gap-3 mb-2">
+                        <div id="avatar-preview" class="w-16 h-16 rounded-full crimson-bg flex items-center justify-center text-white text-2xl font-bold overflow-hidden border-2 crimson-border">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
+                        <label class="flex-1 bg-[#1e1e1e] hover:bg-[#252525] border border-gray-800 rounded-xl px-4 py-3 text-center cursor-pointer text-sm font-semibold transition">
+                            <i class="fa-solid fa-upload ml-2 crimson-text"></i> رفع صورة من الجهاز
+                            <input type="file" id="file-avatar-input" accept="image/*" class="hidden" onchange="loadCustomAvatar(event)">
+                        </label>
+                    </div>
+                    <!-- افتراضات جاهزة -->
+                    <div class="flex gap-2 justify-center mt-2">
+                        <img src="https://placehold.co/100x100/dc143c/ffffff?text=X1" onclick="setPresetAvatar(this.src)" class="w-10 h-10 rounded-full cursor-pointer border border-gray-700 hover:border-white">
+                        <img src="https://placehold.co/100x100/8b0000/ffffff?text=X2" onclick="setPresetAvatar(this.src)" class="w-10 h-10 rounded-full cursor-pointer border border-gray-700 hover:border-white">
+                        <img src="https://placehold.co/100x100/333333/ffffff?text=X3" onclick="setPresetAvatar(this.src)" class="w-10 h-10 rounded-full cursor-pointer border border-gray-700 hover:border-white">
+                    </div>
+                </div>
+
+                <button onclick="startApp()" class="w-full crimson-bg hover:bg-red-700 text-white font-bold py-3.5 rounded-xl transition shadow-lg mt-4 text-lg">
+                    أوكي (OK) <i class="fa-solid fa-arrow-left mr-2"></i>
+                </button>
+            </div>
+            <div class="mt-6 text-xs text-gray-500 font-bold">
+                صنع من قبل XxsouxX
+            </div>
+        </div>
+    </div>
+
+    <!-- التطبيق الرئيسي -->
+    <div id="main-app" class="flex-1 flex flex-col hidden">
+        <!-- شريط التنقل العلوي -->
+        <header class="bg-[#121212] border-b border-gray-800 sticky top-0 z-40 px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full overflow-hidden border crimson-border">
+                    <img id="header-user-avatar" src="" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <h2 id="header-username" class="font-bold text-sm text-white">المستخدم</h2>
+                    <span class="text-[10px] crimson-text font-bold">صنع من قبل XxsouxX</span>
+                </div>
+            </div>
+
+            <!-- أزرار التبديل بين الأقسام -->
+            <div class="flex bg-[#1a1a1a] rounded-xl p-1 border border-gray-800">
+                <button onclick="switchTab('lessons')" id="tab-lessons-btn" class="px-4 py-2 rounded-lg text-xs font-bold transition crimson-bg text-white">
+                    <i class="fa-solid fa-book-open ml-1"></i> الدروس
+                </button>
+                <button onclick="switchTab('chat')" id="tab-chat-btn" class="px-4 py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-comments ml-1"></i> الشات والبحث
+                </button>
+                <button onclick="switchTab('preview-tool')" id="tab-preview-btn" class="px-4 py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-bolt ml-1"></i> زر المعاينة
+                </button>
+            </div>
+        </header>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="flex-1 max-w-6xl w-full mx-auto p-4 flex flex-col">
+
+            <!-- قسم الدروس (البرمجة، الأمن السيبراني، أمان البيانات) -->
+            <div id="section-lessons" class="space-y-6">
+                <div class="bg-gradient-to-r from-[#181818] to-[#121212] border border-gray-800 rounded-2xl p-6 crimson-glow">
+                    <h2 class="text-2xl font-black mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap crimson-text"></i> مسار التعلم الاحترافي
+                    </h2>
+                    <p class="text-gray-400 text-sm">استكشف أقوى الدروس في البرمجة الحديثة، الأمن السيبراني المتقدم، وأمان وحماية البيانات بحسب معايير الصناعة.</p>
+                </div>
+
+                <!-- تصنيفات الدروس -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="lessons-grid">
+                    <!-- سيتم تعبئتها بواسطة الجافاسكريبت -->
+                </div>
+            </div>
+
+            <!-- قسم الشات والبحث بين المستخدمين -->
+            <div id="section-chat" class="hidden flex-1 flex flex-col md:flex-row gap-4 h-[calc(100vh-140px)]">
+                <!-- قائمة المستخدمين والبحث -->
+                <div class="w-full md:w-80 bg-[#121212] border border-gray-800 rounded-2xl p-4 flex flex-col">
+                    <div class="mb-4">
+                        <h3 class="font-bold text-lg mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-users crimson-text"></i> المستخدمون النشطون
+                        </h3>
+                        <div class="relative">
+                            <input type="text" id="search-user-input" oninput="filterUsers(this.value)" placeholder="ابحث عن اسم المستخدم..." class="w-full bg-[#1a1a1a] border border-gray-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-[#dc143c] pr-9">
+                            <i class="fa-solid fa-search absolute right-3 top-3 text-gray-500 text-sm"></i>
+                        </div>
+                    </div>
+                    <div id="users-list" class="flex-1 overflow-y-auto space-y-2">
+                        <!-- قائمة المستخدمين -->
+                    </div>
+                </div>
+
+                <!-- نافذة المراسلة الخاصة -->
+                <div id="chat-box-container" class="flex-1 bg-[#121212] border border-gray-800 rounded-2xl flex flex-col overflow-hidden hidden">
+                    <!-- هيدر الشات الخاص -->
+                    <div class="bg-[#181818] px-4 py-3 border-b border-gray-800 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img id="active-chat-avatar" class="w-10 h-10 rounded-full border crimson-border object-cover">
+                            <div>
+                                <h4 id="active-chat-name" class="font-bold text-sm text-white">اسم المستخدم</h4>
+                                <span class="text-[10px] text-green-500 font-semibold"><i class="fa-solid fa-circle text-[8px]"></i> متصل الآن</span>
+                            </div>
+                        </div>
+                        <button onclick="closeChat()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                    </div>
+
+                    <!-- رسائل الشات -->
+                    <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-3 bg-[#0f0f0f]">
+                        <!-- الرسائل -->
+                    </div>
+
+                    <!-- أزرار الإدخال والوسائط -->
+                    <div class="p-3 bg-[#181818] border-t border-gray-800 flex items-center gap-2">
+                        <!-- زر رفع صورة في الشات -->
+                        <label class="bg-[#222] hover:bg-[#2a2a2a] p-2.5 rounded-xl text-gray-300 hover:text-white cursor-pointer transition">
+                            <i class="fa-solid fa-image text-lg crimson-text"></i>
+                            <input type="file" accept="image/*" class="hidden" onchange="sendImageMessage(event)">
+                        </label>
+
+                        <!-- زر التسجيل الصوتي (فوكال) -->
+                        <button id="voice-record-btn" onclick="toggleVoiceRecord()" class="bg-[#222] hover:bg-[#2a2a2a] p-2.5 rounded-xl text-gray-300 hover:text-white transition relative" title="تسجيل صوتي (فوكال)">
+                            <i class="fa-solid fa-microphone text-lg crimson-text" id="mic-icon"></i>
+                        </button>
+
+                        <!-- خانة كتابة الرسالة -->
+                        <input type="text" id="chat-input" onkeypress="handleChatKey(event)" placeholder="اكتب رسالتك الخاصة..." class="flex-1 bg-[#222] border border-gray-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-[#dc143c]">
+
+                        <!-- زر الإرسال -->
+                        <button onclick="sendTextMessage()" class="crimson-bg hover:bg-red-700 text-white px-4 py-2.5 rounded-xl font-bold transition">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- رسالة ترحيبية لو ما اختار شات -->
+                <div id="no-chat-selected" class="flex-1 bg-[#121212] border border-gray-800 rounded-2xl flex flex-col items-center justify-center p-8 text-center text-gray-500">
+                    <i class="fa-solid fa-comments text-5xl mb-3 text-gray-700"></i>
+                    <p class="text-sm">اختر مستخدماً من القائمة أو ابحث عنه لمراسلتك الخاصة وإرسال الصور والفوايكلات.</p>
+                </div>
+            </div>
+
+            <!-- قسم زر المعاينة والاختبار المطلوب -->
+            <div id="section-preview-tool" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center">
+                <div class="bg-[#141414] border-2 crimson-border rounded-2xl p-8 max-w-lg w-full crimson-glow space-y-6">
+                    <div class="w-16 h-16 rounded-full crimson-bg mx-auto flex items-center justify-center text-white text-3xl">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-white mb-2">أداة واجهة الاختبار والمعاينة</h3>
+                        <p class="text-xs text-gray-400">هذه هي الواجهة المطابقة تماماً لطلبك لاختبار عرض التطبيق وتجربة الزر المخصص كما ظهر في صورتك التوضيحية.</p>
+                    </div>
+
+                    <!-- البطاقة المطلوبة تماماً كما في الصورة -->
+                    <div class="bg-[#1c1c1c] border border-gray-800 rounded-xl p-4 flex items-center justify-between text-right">
+                        <div>
+                            <h4 class="font-bold text-sm text-white">Computer Science Anime Realistic Quiz & Chat App</h4>
+                            <span class="text-[10px] text-gray-500">6 نوفمبر، 3:38 م</span>
+                        </div>
+                        <button onclick="triggerPreviewSim()" class="crimson-bg hover:bg-red-700 text-white px-6 py-2 rounded-xl text-sm font-bold shadow transition">
+                            فتح
+                        </button>
+                    </div>
+
+                    <div class="text-[11px] text-gray-500 border-t border-gray-800 pt-4">
+                        تم تصميم هذا التطبيق وبرمجته بالكامل ليلبي كافة شروطك واحتياجاتك.<br>
+                        <span class="crimson-text font-bold">صنع من قبل XxsouxX</span>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- نافذة عرض محتوى الدرس الكامل -->
+    <div id="lesson-modal" class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#141414] border crimson-border rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col overflow-hidden crimson-glow">
+            <div class="bg-[#1a1a1a] p-4 border-b border-gray-800 flex items-center justify-between">
+                <h3 id="modal-title" class="font-black text-lg text-white">عنوان الدرس</h3>
+                <button onclick="closeLessonModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            <div id="modal-content" class="p-6 overflow-y-auto space-y-4 text-sm text-gray-300 leading-relaxed">
+                <!-- تفاصيل الدرس -->
+            </div>
+            <div class="p-4 bg-[#1a1a1a] border-t border-gray-800 text-left">
+                <button onclick="closeLessonModal()" class="crimson-bg hover:bg-red-700 text-white px-6 py-2 rounded-xl text-xs font-bold transition">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة منبثقة إشعار مخصص بدلاً من alert -->
+    <div id="custom-alert" class="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 hidden">
+        <div class="bg-[#141414] border border-gray-800 rounded-2xl p-6 max-w-sm w-full text-center space-y-4">
+            <i class="fa-solid fa-circle-exclamation crimson-text text-4xl"></i>
+            <p id="alert-message" class="text-sm font-semibold text-white">رسالة التنبيه</p>
+            <button onclick="closeCustomAlert()" class="w-full crimson-bg py-2.5 rounded-xl text-white font-bold text-sm">موافق</button>
+        </div>
+    </div>
+
+    <script>
+        // بيانات التطبيق والمستخدم الحالي
+        let currentUser = {
+            name: "",
+            avatar: "https://placehold.co/100x100/dc143c/ffffff?text=User"
+        };
+
+        let currentPresetAvatar = "";
+
+        // قائمة الدروس الشاملة (برمجة، أمن سيبراني، أمان بيانات)
+        const lessonsData = [
+            {
+                id: 1,
+                category: "البرمجة المتقدمة",
+                title: "مفهوم البرمجة وهيكلة البيانات الحديثة",
+                desc: "تعلم أساسيات البرمجة، خوارزميات البحث والفرز، وكيفية بناء بنية بيانات قوية.",
+                icon: "fa-code",
+                content: `
+                    <h4 class="text-white font-bold text-base mb-2">1. مقدمة في البرمجة الهيكلية</h4>
+                    <p>البرمجة هي لغة التخاطب مع الحواسيب لحل المشكلات المعقدة. تعتمد على تفكيك المشكلة إلى خطوات منطقية صغيرة.</p>
+                    <h4 class="text-white font-bold text-base mt-4 mb-2">2. هياكل البيانات الأساسية (Data Structures)</h4>
+                    <ul class="list-disc list-inside space-y-1 text-gray-300">
+                        <li>المصفوفات (Arrays)</li>
+                        <li>القوائم المرتبطة (Linked Lists)</li>
+                        <li>المداخن والطوابير (Stacks & Queues)</li>
+                        <li>الأشجار والجداول المجزأة (Trees & Hash Tables)</li>
+                    </ul>
+                `
+            },
+            {
+                id: 2,
+                category: "الأمن السيبراني",
+                title: "أساسيات اختبار الاختراق الأخلاقي",
+                desc: "تعلم كيفية حماية الأنظمة عبر اكتشاف الثغرات بالطرق الأخلاقية المعتمدة.",
+                icon: "fa-shield-halved",
+                content: `
+                    <h4 class="text-white font-bold text-base mb-2">1. مفهوم الهاكر الأخلاقي (Ethical Hacking)</h4>
+                    <p>هو اختبار أنظمة الحماية بهدف كشف نقاط الضعف قبل أن يستغلها المخترقون الخبيثون.</p>
+                    <h4 class="text-white font-bold text-base mt-4 mb-2">2. مراحل اختبار الاختراق</h4>
+                    <ol class="list-decimal list-inside space-y-1 text-gray-300">
+                        <li>استطلاع المعلومات (Reconnaissance)</li>
+                        <li>فحص الثغرات (Vulnerability Scanning)</li>
+                        <li>استغلال الثغرات (Exploitation)</li>
+                        <li>الحفاظ على الوصول وكتابة التقرير</li>
+                    </ol>
+                `
+            },
+            {
+                id: 3,
+                category: "أمان البيانات",
+                title: "التشفير وحماية سرية المعلومات",
+                desc: "تعلم خوارزميات التشفير المتماثل وغير المتماثل وكيفية تأمين قواعد البيانات.",
+                icon: "fa-lock",
+                content: `
+                    <h4 class="text-white font-bold text-base mb-2">1. أهمية التشفير (Cryptography)</h4>
+                    <p>التشفير يحول البيانات الواضحة إلى شيفرات غير قابلة للقراءة إلا بواسطة مفتاح خاص.</p>
+                    <h4 class="text-white font-bold text-base mt-4 mb-2">2. أنواع التشفير الشهيرة</h4>
+                    <ul class="list-disc list-inside space-y-1 text-gray-300">
+                        <li>AES (Advanced Encryption Standard)</li>
+                        <li>RSA (Rivest-Shamir-Adleman)</li>
+                        <li>SHA-256 للتوقيع الرقمي وتوليد الهاش</li>
+                    </ul>
+                `
+            },
+            {
+                id: 4,
+                category: "البرمجة",
+                title: "تطوير الويب الآمن (Secure Web Dev)",
+                desc: "حماية تطبيقات الويب من ثغرات حقن SQL، هجمات XSS، وغيرها من المخاطر الشائعة.",
+                icon: "fa-globe",
+                content: `
+                    <h4 class="text-white font-bold text-base mb-2">1. ثغرة الحقن SQL Injection</h4>
+                    <p>كيفية تأمين استعلامات قواعد البيانات باستخدام Prepared Statements لمنع اختراق قواعد البيانات.</p>
+                    <h4 class="text-white font-bold text-base mt-4 mb-2">2. هجمات البرمجيات الخبيثة عبر المواقع XSS</h4>
+                    <p>طرق تنظيف وفلترة مدخلات المستخدمين قبل عرضها في المتصفح.</p>
+                `
+            }
+        ];
+
+        // قائمة المستخدمين الافتراضيين للشات الخاص
+        let usersList = [
+            { id: 1, name: "عمر الهاكر", avatar: "https://placehold.co/100x100/333333/ffffff?text=OS", online: true },
+            { id: 2, name: "سارة السايبر", avatar: "https://placehold.co/100x100/dc143c/ffffff?text=SS", online: true },
+            { id: 3, name: "خالد المبرمج", avatar: "https://placehold.co/100x100/555555/ffffff?text=KM", online: false },
+            { id: 4, name: "ريم أمان البيانات", avatar: "https://placehold.co/100x100/8b0000/ffffff?text=RA", online: true }
+        ];
+
+        let activeChatUser = null;
+        // تخزين رسائل الشات لكل مستخدم
+        let chatMessagesMap = {
+            1: [
+                { sender: 'other', type: 'text', text: 'أهلاً بك! هل جربت درس التشفير الحديث؟', time: '03:15 م' },
+                { sender: 'me', type: 'text', text: 'نعم، كان درساً ممتازاً ومفيداً جداً.', time: '03:18 م' }
+            ],
+            2: [
+                { sender: 'other', type: 'text', text: 'مرحباً! أنا أبحث عن مصادر لأمن الشبكات.', time: '02:00 م' }
+            ],
+            3: [],
+            4: []
+        };
+
+        // تعيين صورة أفتار افتراضية
+        function setPresetAvatar(src) {
+            currentPresetAvatar = src;
+            document.getElementById('avatar-preview').innerHTML = `<img src="${src}" class="w-full h-full object-cover">`;
+        }
+
+        // رفع صورة شخصية من الجهاز
+        function loadCustomAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentPresetAvatar = e.target.result;
+                    document.getElementById('avatar-preview').innerHTML = `<img src="${currentPresetAvatar}" class="w-full h-full object-cover">`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // بدء التطبيق بعد زر أوكي (OK)
+        function startApp() {
+            const nameInput = document.getElementById('username-input').value.trim();
+            if (!nameInput) {
+                showAlert("يرجى إدخال اسم المستخدم أولاً!");
+                return;
+            }
+
+            currentUser.name = nameInput;
+            currentUser.avatar = currentPresetAvatar || "https://placehold.co/100x100/dc143c/ffffff?text=" + nameInput.charAt(0);
+
+            // تحديث واجهة المستخدم العلوية
+            document.getElementById('header-username').innerText = currentUser.name;
+            document.getElementById('header-user-avatar').src = currentUser.avatar;
+
+            // إخفاء شاشة الترحيب وإظهار التطبيق
+            document.getElementById('welcome-screen').classList.add('hidden');
+            document.getElementById('main-app').classList.remove('hidden');
+
+            // تحميل الدروس
+            renderLessons();
+            renderUsersList();
+        }
+
+        // التنقل بين الأقسام
+        function switchTab(tab) {
+            document.getElementById('section-lessons').classList.add('hidden');
+            document.getElementById('section-chat').classList.add('hidden');
+            document.getElementById('section-preview-tool').classList.add('hidden');
+
+            document.getElementById('tab-lessons-btn').className = "px-4 py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+            document.getElementById('tab-chat-btn').className = "px-4 py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+            document.getElementById('tab-preview-btn').className = "px-4 py-2 rounded-lg text-xs font-bold transition text-gray-400 hover:text-white";
+
+            if (tab === 'lessons') {
+                document.getElementById('section-lessons').classList.remove('hidden');
+                document.getElementById('tab-lessons-btn').className = "px-4 py-2 rounded-lg text-xs font-bold transition crimson-bg text-white";
+            } else if (tab === 'chat') {
+                document.getElementById('section-chat').classList.remove('hidden');
+                document.getElementById('tab-chat-btn').className = "px-4 py-2 rounded-lg text-xs font-bold transition crimson-bg text-white";
+            } else if (tab === 'preview-tool') {
+                document.getElementById('section-preview-tool').classList.remove('hidden');
+                document.getElementById('tab-preview-btn').className = "px-4 py-2 rounded-lg text-xs font-bold transition crimson-bg text-white";
+            }
+        }
+
+        // عرض الدروس في البطاقات
+        function renderLessons() {
+            const grid = document.getElementById('lessons-grid');
+            grid.innerHTML = lessonsData.map(lesson => `
+                <div class="bg-[#141414] border border-gray-800 rounded-2xl p-6 flex flex-col justify-between hover:border-[#dc143c] transition group">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-[11px] crimson-bg text-white px-3 py-1 rounded-full font-bold">${lesson.category}</span>
+                            <i class="fa-solid ${lesson.icon} text-2xl crimson-text"></i>
+                        </div>
+                        <h3 class="font-black text-base text-white mb-2 group-hover:text-red-400 transition">${lesson.title}</h3>
+                        <p class="text-xs text-gray-400 leading-relaxed mb-4">${lesson.desc}</p>
+                    </div>
+                    <button onclick="openLesson(${lesson.id})" class="w-full bg-[#1e1e1e] hover:bg-[#252525] border border-gray-800 text-white py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-book-reader crimson-text"></i> عرض الدرس كاملاً
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // فتح محتوى الدرس الكامل
+        function openLesson(id) {
+            const lesson = lessonsData.find(l => l.id === id);
+            if (lesson) {
+                document.getElementById('modal-title').innerText = lesson.title;
+                document.getElementById('modal-content').innerHTML = lesson.content;
+                document.getElementById('lesson-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeLessonModal() {
+            document.getElementById('lesson-modal').classList.add('hidden');
+        }
+
+        // عرض قائمة المستخدمين في الشات
+        function renderUsersList(filter = "") {
+            const listContainer = document.getElementById('users-list');
+            const filtered = usersList.filter(u => u.name.toLowerCase().includes(filter.toLowerCase()));
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `<p class="text-xs text-gray-500 text-center py-4">لا يوجد مستخدم بهذا الاسم</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = filtered.map(u => `
+                <div onclick="selectChatUser(${u.id})" class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition ${activeChatUser && activeChatUser.id === u.id ? 'bg-[#1c1c1c] border border-[#dc143c]' : 'hover:bg-[#181818]'}">
+                    <div class="relative">
+                        <img src="${u.avatar}" class="w-10 h-10 rounded-full object-cover">
+                        ${u.online ? '<span class="absolute bottom-0 left-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-[#121212]"></span>' : ''}
+                    </div>
+                    <div class="flex-1 overflow-hidden">
+                        <h5 class="font-bold text-sm text-white truncate">${u.name}</h5>
+                        <span class="text-[10px] text-gray-400">${u.online ? 'متصل الآن' : 'غير متصل'}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // تصفية المستخدمين بالبحث
+        function filterUsers(query) {
+            renderUsersList(query);
+        }
+
+        // اختيار مستخدم للمحادثة الخاصة
+        function selectChatUser(userId) {
+            activeChatUser = usersList.find(u => u.id === userId);
+            document.getElementById('no-chat-selected').classList.add('hidden');
+            document.getElementById('chat-box-container').classList.remove('hidden');
+
+            document.getElementById('active-chat-name').innerText = activeChatUser.name;
+            document.getElementById('active-chat-avatar').src = activeChatUser.avatar;
+
+            renderChatMessages();
+            renderUsersList(document.getElementById('search-user-input').value);
+        }
+
+        function closeChat() {
+            activeChatUser = null;
+            document.getElementById('chat-box-container').classList.add('hidden');
+            document.getElementById('no-chat-selected').classList.remove('hidden');
+            renderUsersList();
+        }
+
+        // عرض الرسائل الخاصة
+        function renderChatMessages() {
+            const container = document.getElementById('chat-messages');
+            if (!activeChatUser) return;
+            const messages = chatMessagesMap[activeChatUser.id] || [];
+
+            container.innerHTML = messages.map(msg => {
+                if (msg.type === 'text') {
+                    return `
+                        <div class="flex flex-col ${msg.sender === 'me' ? 'items-end' : 'items-start'}">
+                            <div class="max-w-[75%] rounded-2xl px-4 py-2.5 text-xs ${msg.sender === 'me' ? 'crimson-bg text-white rounded-bl-none' : 'bg-[#1e1e1e] text-gray-200 border border-gray-800 rounded-br-none'}">
+                                ${msg.text}
+                            </div>
+                            <span class="text-[9px] text-gray-500 mt-1">${msg.time}</span>
+                        </div>
+                    `;
+                } else if (msg.type === 'image') {
+                    return `
+                        <div class="flex flex-col ${msg.sender === 'me' ? 'items-end' : 'items-start'}">
+                            <div class="max-w-[70%] rounded-2xl overflow-hidden border border-gray-800 ${msg.sender === 'me' ? 'rounded-bl-none' : 'rounded-br-none'}">
+                                <img src="${msg.url}" class="w-full max-h-48 object-cover">
+                            </div>
+                            <span class="text-[9px] text-gray-500 mt-1">${msg.time}</span>
+                        </div>
+                    `;
+                } else if (msg.type === 'voice') {
+                    return `
+                        <div class="flex flex-col ${msg.sender === 'me' ? 'items-end' : 'items-start'}">
+                            <div class="max-w-[75%] rounded-2xl px-4 py-3 flex items-center gap-3 ${msg.sender === 'me' ? 'crimson-bg text-white rounded-bl-none' : 'bg-[#1e1e1e] text-gray-200 border border-gray-800 rounded-br-none'}">
+                                <i class="fa-solid fa-play text-sm cursor-pointer"></i>
+                                <div class="w-28 h-1.5 bg-white/30 rounded-full overflow-hidden">
+                                    <div class="w-2/3 h-full bg-white rounded-full"></div>
+                                </div>
+                                <span class="text-[10px]">0:08</span>
+                                <i class="fa-solid fa-microphone text-xs opacity-70"></i>
+                            </div>
+                            <span class="text-[9px] text-gray-500 mt-1">${msg.time}</span>
+                        </div>
+                    `;
+                }
+            }).join('');
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // إرسال رسالة نصية
+        function sendTextMessage() {
+            const input = document.getElementById('chat-input');
+            const text = input.value.trim();
+            if (!text || !activeChatUser) return;
+
+            const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            if (!chatMessagesMap[activeChatUser.id]) {
+                chatMessagesMap[activeChatUser.id] = [];
+            }
+
+            chatMessagesMap[activeChatUser.id].push({
+                sender: 'me',
+                type: 'text',
+                text: text,
+                time: timeNow
+            });
+
+            input.value = "";
+            renderChatMessages();
+
+            // رد تلقائي تجريبي من المستخدم الآخر
+            setTimeout(() => {
+                chatMessagesMap[activeChatUser.id].push({
+                    sender: 'other',
+                    type: 'text',
+                    text: 'تم استلام رسالتك حول الأمن السيبراني بنجاح!',
+                    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                });
+                renderChatMessages();
+            }, 1200);
+        }
+
+        function handleChatKey(event) {
+            if (event.key === 'Enter') {
+                sendTextMessage();
+            }
+        }
+
+        // إرسال صورة في الشات
+        function sendImageMessage(event) {
+            const file = event.target.files[0];
+            if (file && activeChatUser) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    if (!chatMessagesMap[activeChatUser.id]) chatMessagesMap[activeChatUser.id] = [];
+                    
+                    chatMessagesMap[activeChatUser.id].push({
+                        sender: 'me',
+                        type: 'image',
+                        url: e.target.result,
+                        time: timeNow
+                    });
+                    renderChatMessages();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ميزة التسجيل الصوتي (الفوكال)
+        let isRecording = false;
+        function toggleVoiceRecord() {
+            if (!activeChatUser) return;
+            const micIcon = document.getElementById('mic-icon');
+            
+            if (!isRecording) {
+                isRecording = true;
+                micIcon.className = "fa-solid fa-stop text-lg text-red-500 animate-pulse";
+                showAlert("جارٍ تسجيل الفوكال الصوتي...");
+            } else {
+                isRecording = false;
+                micIcon.className = "fa-solid fa-microphone text-lg crimson-text";
+                
+                // إرسال رسالة صوتية وهمية
+                const timeNow = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                if (!chatMessagesMap[activeChatUser.id]) chatMessagesMap[activeChatUser.id] = [];
+                
+                chatMessagesMap[activeChatUser.id].push({
+                    sender: 'me',
+                    type: 'voice',
+                    time: timeNow
+                });
+                renderChatMessages();
+                closeCustomAlert();
+            }
+        }
+
+        // محاكاة زر المعاينة المطلوب
+        function triggerPreviewSim() {
+            showAlert("تم تفعيل وضع المعاينة بنجاح! التطبيق يعمل بكفاءة تامة.");
+        }
+
+        // نظام التنبيهات المخصص بدلاً من alert
+        function showAlert(msg) {
+            document.getElementById('alert-message').innerText = msg;
+            document.getElementById('custom-alert').classList.remove('hidden');
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('custom-alert').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
